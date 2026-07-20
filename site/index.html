@@ -131,7 +131,7 @@
     transition: border-color .15s, box-shadow .15s;
   }
   .opt:hover, .opt:focus-visible { border-color: var(--red); box-shadow: 0 0 14px rgba(237,28,36,.3); outline: none; }
-  .opt.wrong { animation: shake .4s; border-color: var(--red); color: var(--red); }
+  .opt.wrong, .finput.wrong { animation: shake .4s; border-color: var(--red); color: var(--red); }
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20% { transform: translateX(-7px); } 40% { transform: translateX(7px); }
@@ -168,6 +168,23 @@
   .file .v { font-size: 14px; color: var(--paper); }
   .file .v small { color: var(--dim); }
   a.btn { text-decoration: none; }
+
+  /* ---- formulário RSVP ---- */
+  .rsvp-form { margin: 24px auto 0; max-width: 360px; text-align: left; display: grid; gap: 6px; }
+  .flabel {
+    font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--red); margin-top: 10px;
+  }
+  .finput {
+    width: 100%; box-sizing: border-box;
+    background: rgba(0,0,0,.45); font-family: inherit;
+    border: 1px solid rgba(216,210,200,.3); color: var(--paper);
+    padding: 12px 12px; font-size: 15px;
+  }
+  .finput:focus { border-color: var(--red); box-shadow: 0 0 14px rgba(237,28,36,.3); outline: none; }
+  .finput::placeholder { color: rgba(138,132,148,.7); }
+  select.finput { appearance: none; -webkit-appearance: none; }
+  .rsvp-form .btn { width: 100%; margin-top: 20px; }
   .footer { margin-top: 24px; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: var(--dim); }
 
   .screen { display: none; }
@@ -248,10 +265,22 @@
         <div class="row"><span class="k">Hora</span><span class="v">11h00 <small>— até o portal fechar</small></span></div>
         <div class="row"><span class="k">Local</span><span class="v">Brilhante Festas<br><small>Av. Brino, 135 — Santa Maria Goretti, Porto Alegre</small></span></div>
       </div>
-      <a class="btn" id="rsvp" target="_blank" rel="noopener"
-         href="https://wa.me/5551991993326?text=Miss%C3%A3o%20cumprida!%20Decifrei%20o%20convite%20e%20VOU%20%C3%A0%20festa%20do%20Thiago!%20%F0%9F%8E%88%F0%9F%91%BE">
-        Confirmar presença
-      </a>
+      <form class="rsvp-form" id="rsvpForm">
+        <label class="flabel" for="fname">Seu nome</label>
+        <input class="finput" id="fname" type="text" maxlength="60" autocomplete="name" placeholder="Ex.: Dustin Henderson">
+        <label class="flabel" for="fcount">Quantas pessoas vão? (contando você)</label>
+        <select class="finput" id="fcount">
+          <option value="1">1 pessoa</option>
+          <option value="2" selected>2 pessoas</option>
+          <option value="3">3 pessoas</option>
+          <option value="4">4 pessoas</option>
+          <option value="5">5 pessoas</option>
+          <option value="6">6 pessoas</option>
+          <option value="7">7 pessoas</option>
+          <option value="8+">mais de 7 pessoas</option>
+        </select>
+        <button class="btn" type="submit">Confirmar presença</button>
+      </form>
       <p class="footer">Hawkins &middot; Indiana &middot; 1986</p>
     </section>
 
@@ -390,6 +419,23 @@
     };
     step();
   }
+
+  $('rsvpForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const nomeEl = $('fname');
+    const nome = nomeEl.value.trim();
+    if (!nome) {
+      nomeEl.classList.remove('wrong');
+      void nomeEl.offsetWidth;
+      nomeEl.classList.add('wrong');
+      nomeEl.focus();
+      return;
+    }
+    const n = $('fcount').value;
+    const pessoas = n === '1' ? '1 pessoa' : n === '8+' ? 'mais de 7 pessoas' : n + ' pessoas';
+    const msg = 'Missão cumprida! 👾 Eu, ' + nome + ', decifrei o convite e confirmo presença na festa do Thiago: ' + pessoas + ' no total. 🎈';
+    window.open('https://wa.me/5551991993326?text=' + encodeURIComponent(msg), '_blank');
+  });
 
   $('start').addEventListener('click', loadMission);
   $('next').addEventListener('click', () => {
