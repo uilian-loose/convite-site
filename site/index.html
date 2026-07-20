@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missão Secreta — Thiago 9 anos</title>
+<style>
+  :root {
+    --void: #050308;
+    --card: #0a0612;
+    --red: #ed1c24;
+    --red-glow: rgba(237, 28, 36, .55);
+    --paper: #d8d2c8;
+    --dim: #8a8494;
+    --green: #52d273;
+  }
+  html, body { background: var(--void); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 14px;
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--paper);
+  }
+  .card {
+    position: relative;
+    width: min(520px, 100%);
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, rgba(237,28,36,.10), transparent 60%),
+      radial-gradient(ellipse 140% 80% at 50% 115%, rgba(40,20,80,.35), transparent 65%),
+      var(--card);
+    border: 1px solid rgba(237,28,36,.35);
+    box-shadow: 0 0 40px rgba(237,28,36,.15), 0 0 120px rgba(60,20,120,.2), inset 0 0 80px rgba(0,0,0,.6);
+    padding: 0 24px 32px;
+    overflow: hidden;
+    text-align: center;
+  }
+  canvas#spores { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .inner { position: relative; z-index: 1; }
+
+  /* ---- luzes ---- */
+  .lights { display: flex; justify-content: space-between; padding: 18px 2px 4px; position: relative; }
+  .lights::before {
+    content: ''; position: absolute; left: -24px; right: -24px; top: 20px;
+    height: 14px; border-top: 2px solid #1e1526; border-radius: 50%;
+  }
+  .bulb { width: 10px; height: 14px; border-radius: 46% 46% 50% 50%; position: relative; animation: flicker 3.4s infinite; }
+  .bulb::before {
+    content: ''; position: absolute; top: -5px; left: 3px;
+    width: 4px; height: 5px; background: #241a2e; border-radius: 2px 2px 0 0;
+  }
+  .bulb.r { background: #ff3b30; box-shadow: 0 0 12px 2px rgba(255,59,48,.7); }
+  .bulb.b { background: #4aa3ff; box-shadow: 0 0 12px 2px rgba(74,163,255,.7); animation-delay: .7s; }
+  .bulb.g { background: #52d273; box-shadow: 0 0 12px 2px rgba(82,210,115,.7); animation-delay: 1.4s; }
+  .bulb.y { background: #ffb347; box-shadow: 0 0 12px 2px rgba(255,179,71,.7); animation-delay: 2.1s; }
+  .bulb.o { background: #ff7a45; box-shadow: 0 0 12px 2px rgba(255,122,69,.7); animation-delay: 2.8s; }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; } 12% { opacity: .35; } 16% { opacity: 1; }
+    64% { opacity: .85; } 70% { opacity: .3; } 74% { opacity: 1; }
+  }
+
+  .eyebrow {
+    margin-top: 22px; font-size: 11px; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .st-title {
+    font-family: 'ITC Benguiat', 'Bookman Old Style', Georgia, 'Times New Roman', serif;
+    font-weight: 700; text-transform: uppercase;
+    color: var(--card);
+    -webkit-text-stroke: 2px var(--red);
+    letter-spacing: .04em; line-height: .98;
+    filter: drop-shadow(0 0 10px var(--red-glow)) drop-shadow(0 0 30px rgba(237,28,36,.25));
+    margin: 12px 0 0; text-wrap: balance;
+  }
+  .st-title .line1 { font-size: clamp(26px, 6.5vw, 38px); display: block; }
+  .st-title .line2 { font-size: clamp(40px, 11vw, 64px); display: block; margin-top: 2px; }
+  .st-title .cap { font-size: 1.22em; vertical-align: -.06em; }
+
+  .rule {
+    width: 110px; height: 1px; margin: 22px auto 0;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .copy { margin: 18px auto 0; max-width: 40ch; font-size: 13.5px; line-height: 1.7; }
+  .copy b { color: #fff; }
+
+  /* ---- progresso ---- */
+  .progress {
+    display: flex; justify-content: center; gap: 8px;
+    margin: 22px auto 0; flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    border: 1px dashed rgba(216,210,200,.3); color: var(--dim);
+    padding: 7px 10px; min-width: 64px;
+  }
+  .chip .val { display: block; margin-top: 4px; font-size: 11px; color: var(--paper); letter-spacing: .1em; }
+  .chip.done { border: 1px solid rgba(82,210,115,.55); }
+  .chip.done .val { color: var(--green); text-shadow: 0 0 10px rgba(82,210,115,.5); }
+
+  /* ---- botões ---- */
+  .btn {
+    display: inline-block; margin-top: 26px; cursor: pointer;
+    background: none; font-family: inherit;
+    border: 1px solid var(--red); color: var(--paper);
+    padding: 13px 30px; font-size: 14px; letter-spacing: .22em; text-transform: uppercase;
+    box-shadow: 0 0 18px rgba(237,28,36,.25), inset 0 0 18px rgba(237,28,36,.08);
+    transition: box-shadow .2s, transform .1s;
+  }
+  .btn:hover, .btn:focus-visible { box-shadow: 0 0 30px rgba(237,28,36,.5), inset 0 0 24px rgba(237,28,36,.15); outline: none; }
+  .btn:active { transform: scale(.97); }
+
+  /* ---- quiz ---- */
+  .mission-tag {
+    margin-top: 26px; font-size: 11px; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--red);
+    text-shadow: 0 0 12px var(--red-glow);
+  }
+  .question {
+    margin: 16px auto 0; max-width: 38ch;
+    font-size: 17px; line-height: 1.55; color: #fff; font-weight: 700;
+    text-wrap: balance;
+  }
+  .options { display: grid; gap: 10px; margin: 22px auto 0; max-width: 360px; }
+  .opt {
+    cursor: pointer; background: rgba(0,0,0,.35); font-family: inherit;
+    border: 1px solid rgba(216,210,200,.28); color: var(--paper);
+    padding: 13px 14px; font-size: 14px; letter-spacing: .04em;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .opt:hover, .opt:focus-visible { border-color: var(--red); box-shadow: 0 0 14px rgba(237,28,36,.3); outline: none; }
+  .opt.wrong { animation: shake .4s; border-color: var(--red); color: var(--red); }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); } 40% { transform: translateX(7px); }
+    60% { transform: translateX(-5px); } 80% { transform: translateX(5px); }
+  }
+  .feedback { min-height: 22px; margin-top: 16px; font-size: 12.5px; color: var(--red); letter-spacing: .06em; }
+
+  /* ---- revelação ---- */
+  .reveal-label {
+    margin-top: 30px; font-size: 11px; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--green);
+    text-shadow: 0 0 12px rgba(82,210,115,.5);
+  }
+  .reveal-text {
+    margin: 18px auto 0; max-width: 30ch;
+    font-family: 'ITC Benguiat', 'Bookman Old Style', Georgia, serif;
+    font-size: clamp(22px, 6vw, 30px); font-weight: 700; line-height: 1.35;
+    color: #fff; text-transform: uppercase; letter-spacing: .05em;
+    text-shadow: 0 0 14px var(--red-glow), 0 0 40px rgba(237,28,36,.3);
+    min-height: 76px; text-wrap: balance;
+  }
+  .reveal-text .lit { animation: pop .18s; }
+  @keyframes pop { from { opacity: 0; text-shadow: 0 0 30px #fff; } to { opacity: 1; } }
+  .reveal-small { margin-top: 8px; font-size: 12.5px; color: var(--dim); }
+
+  /* ---- final ---- */
+  .file {
+    margin: 24px auto 0; max-width: 360px; text-align: left;
+    border: 1px dashed rgba(216,210,200,.3); padding: 16px 18px;
+    display: grid; gap: 10px; background: rgba(0,0,0,.35);
+  }
+  .file .row { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: baseline; }
+  .file .k { font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--red); }
+  .file .v { font-size: 14px; color: var(--paper); }
+  .file .v small { color: var(--dim); }
+  a.btn { text-decoration: none; }
+  .footer { margin-top: 24px; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: var(--dim); }
+
+  .screen { display: none; }
+  .screen.on { display: block; animation: fadein .5s; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bulb, .opt.wrong, .reveal-text .lit, .screen.on { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <canvas id="spores"></canvas>
+  <div class="inner">
+
+    <div class="lights" aria-hidden="true">
+      <span class="bulb r"></span><span class="bulb b"></span><span class="bulb g"></span>
+      <span class="bulb y"></span><span class="bulb o"></span><span class="bulb r"></span>
+      <span class="bulb b"></span><span class="bulb g"></span><span class="bulb y"></span>
+      <span class="bulb o"></span><span class="bulb r"></span><span class="bulb b"></span>
+    </div>
+
+    <div class="progress" id="progress" aria-label="Pistas decifradas">
+      <span class="chip" data-key="data">Data<span class="val">???</span></span>
+      <span class="chip" data-key="hora">Hora<span class="val">???</span></span>
+      <span class="chip" data-key="local">Local<span class="val">???</span></span>
+      <span class="chip" data-key="senha">Senha<span class="val">???</span></span>
+    </div>
+
+    <!-- INTRO -->
+    <section class="screen on" id="intro">
+      <p class="eyebrow">Arquivo confidencial &middot; Laboratório de Hawkins</p>
+      <h1 class="st-title">
+        <span class="line1"><span class="cap">M</span>issão secret<span class="cap">a</span></span>
+        <span class="line2"><span class="cap">T</span>hiago &middot; <span class="cap">9</span></span>
+      </h1>
+      <div class="rule"></div>
+      <p class="copy">
+        O convite da festa do <b>Thiago</b> foi capturado e levado
+        para o <b>Mundo Invertido</b>. A data, a hora e o local estão
+        criptografados. Só quem provar que conhece Hawkins vai decifrar
+        o convite — <b>antes que o Demogorgon chegue</b>.
+      </p>
+      <button class="btn" id="start">Aceitar a missão</button>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="screen" id="quiz">
+      <p class="mission-tag" id="mtag">Missão 1 de 4</p>
+      <p class="question" id="qtext"></p>
+      <div class="options" id="opts"></div>
+      <p class="feedback" id="feedback" role="status"></p>
+    </section>
+
+    <!-- REVELAÇÃO -->
+    <section class="screen" id="reveal">
+      <p class="reveal-label" id="rlabel">Pista decifrada</p>
+      <p class="reveal-text" id="rtext"></p>
+      <p class="reveal-small" id="rsmall"></p>
+      <button class="btn" id="next">Próxima missão</button>
+    </section>
+
+    <!-- FINAL -->
+    <section class="screen" id="final">
+      <p class="eyebrow">Convite 100% decifrado</p>
+      <h2 class="st-title">
+        <span class="line1"><span class="cap">V</span>ocê vence<span class="cap">u</span>!</span>
+      </h2>
+      <div class="rule"></div>
+      <p class="copy">
+        Missão cumprida! O portal vai se abrir e você está convocado
+        para o aniversário de <b>9 anos do Thiago</b>:
+      </p>
+      <div class="file" role="group" aria-label="Detalhes do evento">
+        <div class="row"><span class="k">Data</span><span class="v">Domingo, 16 de agosto de 2026</span></div>
+        <div class="row"><span class="k">Hora</span><span class="v">11h00 <small>— até o portal fechar</small></span></div>
+        <div class="row"><span class="k">Local</span><span class="v">Brilhante Festas<br><small>Av. Brino, 135 — Santa Maria Goretti, Porto Alegre</small></span></div>
+      </div>
+      <a class="btn" id="rsvp" target="_blank" rel="noopener"
+         href="https://wa.me/5551991993326?text=Miss%C3%A3o%20cumprida!%20Decifrei%20o%20convite%20e%20VOU%20%C3%A0%20festa%20do%20Thiago!%20%F0%9F%8E%88%F0%9F%91%BE">
+        Confirmar presença
+      </a>
+      <p class="footer">Hawkins &middot; Indiana &middot; 1986</p>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  // ---- partículas ----
+  const cv = document.getElementById('spores');
+  const ctx = cv.getContext('2d');
+  let W, H, parts = [];
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    W = cv.width = r.width * devicePixelRatio;
+    H = cv.height = r.height * devicePixelRatio;
+  }
+  function make(n) {
+    parts = Array.from({length: n}, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: (Math.random() * 1.6 + .5) * devicePixelRatio,
+      vx: (Math.random() - .5) * .12 * devicePixelRatio,
+      vy: (Math.random() * .18 + .04) * devicePixelRatio,
+      a: Math.random() * .5 + .12
+    }));
+  }
+  function tickBg() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of parts) {
+      p.x += p.vx; p.y -= p.vy;
+      if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7);
+      ctx.fillStyle = 'rgba(216,210,200,' + p.a * .35 + ')'; ctx.fill();
+    }
+    requestAnimationFrame(tickBg);
+  }
+  resize(); make(42);
+  addEventListener('resize', () => { resize(); make(42); });
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced) tickBg();
+
+  // ---- missões ----
+  const MISSIONS = [
+    {
+      key: 'data', chip: '16/08',
+      q: 'Qual é o nome da menina com poderes incríveis em Stranger Things?',
+      opts: ['Max', 'Onze (Eleven)', 'Vecna', 'Joyce'], ok: 1,
+      label: 'Data decifrada',
+      text: 'Domingo, 16 de agosto', small: 'Anota na agenda — o portal abre nesse dia!'
+    },
+    {
+      key: 'hora', chip: '11h',
+      q: 'Como é chamado o mundo paralelo, escuro e cheio de perigos da série?',
+      opts: ['O Multiverso', 'A Terra do Nunca', 'O Mundo Invertido', 'O Submundo'], ok: 2,
+      label: 'Hora decifrada',
+      text: '11 horas da manhã', small: 'E fica aberto até o portal fechar.'
+    },
+    {
+      key: 'local', chip: 'Brilhante',
+      q: 'Qual é a comida favorita da Onze?',
+      opts: ['Pizza', 'Hambúrguer', 'Brigadeiro', 'Waffles (Eggos)'], ok: 3,
+      label: 'Local decifrado',
+      text: 'Brilhante Festas', small: 'Av. Brino, 135 — Santa Maria Goretti, Porto Alegre'
+    },
+    {
+      key: 'senha', chip: 'OK!',
+      q: 'Qual monstro assustador vive no Mundo Invertido?',
+      opts: ['Demogorgon', 'Godzilla', 'Bicho-papão', 'Lobisomem'], ok: 0,
+      label: 'Senha do portal aceita',
+      text: 'Amigo do Will', small: 'Última etapa: confirmar presença pelo walkie-talkie.'
+    }
+  ];
+  const WRONG = [
+    'Interferência do Mundo Invertido... tente de novo!',
+    'O Demogorgon interceptou essa resposta. Tente outra!',
+    'As luzes piscaram: N-Ã-O. Tente de novo!'
+  ];
+
+  let cur = 0;
+  const $ = id => document.getElementById(id);
+  const screens = ['intro', 'quiz', 'reveal', 'final'];
+  function show(id) {
+    screens.forEach(s => $(s).classList.toggle('on', s === id));
+    if ($('quiz').classList.contains('on') || id === 'final') window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function loadMission() {
+    const m = MISSIONS[cur];
+    $('mtag').textContent = 'Missão ' + (cur + 1) + ' de ' + MISSIONS.length;
+    $('qtext').textContent = m.q;
+    $('feedback').textContent = '';
+    const box = $('opts');
+    box.innerHTML = '';
+    m.opts.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.type = 'button';
+      b.textContent = t;
+      b.addEventListener('click', () => answer(b, i === m.ok));
+      box.appendChild(b);
+    });
+    show('quiz');
+  }
+
+  function answer(btn, right) {
+    const m = MISSIONS[cur];
+    if (!right) {
+      btn.classList.remove('wrong');
+      void btn.offsetWidth;
+      btn.classList.add('wrong');
+      $('feedback').textContent = WRONG[Math.floor(Math.random() * WRONG.length)];
+      return;
+    }
+    const chip = document.querySelector('.chip[data-key="' + m.key + '"]');
+    chip.classList.add('done');
+    chip.querySelector('.val').textContent = m.chip;
+    $('rlabel').textContent = m.label;
+    $('rsmall').textContent = m.small;
+    $('next').textContent = cur === MISSIONS.length - 1 ? 'Abrir o convite' : 'Próxima missão';
+    show('reveal');
+    typeReveal(m.text);
+  }
+
+  function typeReveal(text) {
+    const el = $('rtext');
+    el.innerHTML = '';
+    if (reduced) { el.textContent = text; return; }
+    let i = 0;
+    const step = () => {
+      if (i >= text.length) return;
+      const s = document.createElement('span');
+      s.className = 'lit';
+      s.textContent = text[i];
+      el.appendChild(s);
+      i++;
+      setTimeout(step, text[i - 1] === ' ' ? 40 : 65);
+    };
+    step();
+  }
+
+  $('start').addEventListener('click', loadMission);
+  $('next').addEventListener('click', () => {
+    cur++;
+    if (cur < MISSIONS.length) loadMission();
+    else show('final');
+  });
+</script>
+
+</body>
+</html>
