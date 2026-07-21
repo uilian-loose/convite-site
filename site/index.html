@@ -403,13 +403,15 @@
     typeReveal(m.text);
   }
 
+  let typeSeq = 0;
   function typeReveal(text) {
     const el = $('rtext');
     el.innerHTML = '';
+    const seq = ++typeSeq;
     if (reduced) { el.textContent = text; return; }
     let i = 0;
     const step = () => {
-      if (i >= text.length) return;
+      if (seq !== typeSeq || i >= text.length) return;
       const s = document.createElement('span');
       s.className = 'lit';
       s.textContent = text[i];
